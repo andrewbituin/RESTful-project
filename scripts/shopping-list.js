@@ -44,6 +44,14 @@ const shoppingList = (function(){
   function render() {
     // Filter item list if store prop is true by item.checked === false
     let items = [ ...store.items ];
+    if (store.error){
+      $('.js-error-message').html(`Error: ${store.errorMessage}`);
+      store.error = false;
+    }
+    else if (!store.error){
+      $('.js-error-message').empty();
+      
+    }
     if (store.hideCheckedItems) {
       items = items.filter(item => !item.checked);
     }
@@ -66,12 +74,18 @@ const shoppingList = (function(){
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
+      console.log(newItemName);
+      if (newItemName === ''){
+        store.errorMessage = 'Must enter a name.';
+        store.error = true;
+        render();
+      }
+      else {
       api.createItem(newItemName)
-        .then(res => res.json())
         .then((newItem) => {
           store.addItem(newItem);
           render();
-        });
+        });}
     });
   }
   
@@ -84,8 +98,15 @@ const shoppingList = (function(){
   function handleItemCheckClicked() {
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
-      store.findAndToggleChecked(id);
-      render();
+      const item = store.findById(id);
+      console.log(item);
+      api.updateItem(id, {checked: !item.checked})
+      .then(() => {
+        store.findAndUpdate(id, {checked: !item.checked});
+        render();
+      });
+      // store.findAndToggleChecked(id);
+      // render();
     });
   }
   
@@ -95,9 +116,11 @@ const shoppingList = (function(){
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      store.findAndDelete(id);
-      // render the updated shopping list
-      render();
+      api.deleteItem(id)
+        .then(() => {
+          store.findAndDelete(id);
+          render();
+        });
     });
   }
   

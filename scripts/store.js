@@ -12,7 +12,6 @@ const store = (function(){
 
   const findAndUpdate = function (id, newData){
     const targetItem = this.findById(id);
-    console.log(targetItem);
     Object.assign(targetItem, newData);
   // const findAndToggleChecked = function(id) {
   //   const item = this.findById(id);
@@ -50,7 +49,6 @@ const store = (function(){
     items: [],
     hideCheckedItems: false,
     searchTerm: '',
-
     addItem,
     findAndUpdate,
     findById,
@@ -58,6 +56,8 @@ const store = (function(){
     toggleCheckedFilter,
     setSearchTerm,
     setItemIsEditing,
+    error: false,
+    errorMessage: ''
   };
   
 }());
