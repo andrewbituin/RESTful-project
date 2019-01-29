@@ -1,6 +1,7 @@
 /* global store, $ */
 
 // eslint-disable-next-line no-unused-vars
+'use strict';
 const shoppingList = (function(){
 
   function generateItemElement(item) {
@@ -55,7 +56,6 @@ const shoppingList = (function(){
     // render the shopping list in the DOM
     console.log('`render` ran');
     const shoppingListItemsString = generateShoppingItemsString(items);
-  
     // insert that HTML into the DOM
     $('.js-shopping-list').html(shoppingListItemsString);
   }
@@ -66,8 +66,12 @@ const shoppingList = (function(){
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
-      store.addItem(newItemName);
-      render();
+      api.createItem(newItemName)
+        .then(res => res.json())
+        .then((newItem) => {
+          store.addItem(newItem);
+          render();
+        });
     });
   }
   
@@ -102,9 +106,13 @@ const shoppingList = (function(){
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
-      store.findAndUpdateName(id, itemName);
-      store.setItemIsEditing(id, false);
-      render();
+      console.log(itemName);
+      api.updateItem(id, {name: itemName})
+        .then(() => {
+          store.findAndUpdate(id, {name: itemName});
+          store.setItemIsEditing(id, false);
+          render();
+        });
     });
   }
   
